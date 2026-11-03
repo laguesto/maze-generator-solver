@@ -142,3 +142,6 @@ Therefore, BFS and DFS find routes of the same length in these generated mazes, 
 
 **Framework:** WPF / .NET 10
 
+## Demo
+
+![Maze Generator and Solver Demo](docs/demo.gif)
