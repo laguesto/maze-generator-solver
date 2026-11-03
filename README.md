@@ -47,6 +47,34 @@ The application creates random mazes using Depth-First Search (DFS), allows user
 ![Algorithm Comparison](docs/screenshots/05-algorithm-comparison.png)
 
 
+## Testing
+
+The application algorithms were tested using a separate console test runner.
+
+### Test Results
+
+| Test | Result |
+|---|---|
+| Maze 1x1 | PASS |
+| Start equals Finish | PASS |
+| Maze 200x200 | PASS |
+| No Path Available | PASS |
+| BFS Shortest Path | PASS |
+
+**Total: 5 passed, 0 failed.**
+
+### Large Maze Performance
+
+The application was tested on a 200x200 maze:
+
+| Metric | BFS | DFS |
+|---|---:|---:|
+| Path Length | 14498 | 14498 |
+| Visited Cells | 35508 | 30233 |
+| Execution Time | 33.70 ms | 14.82 ms |
+
+![Test Results](docs/screenshots/06-test-results.png)
+
 
 ## Algorithms
 
