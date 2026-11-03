@@ -20,6 +20,29 @@ The application creates random mazes using Depth-First Search (DFS), allows user
 - **Algorithm Comparison** — compares BFS and DFS by path length, visited cells, and execution time.
 - **Statistics** — displays path length, visited cells, and execution time.
 - **PNG Export** — saves the generated maze as a PNG image.
+## Screenshots
+
+### Main Window
+
+![Main Window](docs/screenshots/01-main-window.png)
+
+### Maze Generation
+
+![Maze Generation](docs/screenshots/02-maze-generation.png)
+
+### BFS Solution
+
+![BFS Solution](docs/screenshots/03-bfs-solution.png)
+
+### DFS Solution
+
+![DFS Solution](docs/screenshots/04-dfs-solution.png)
+
+### Algorithm Comparison
+
+![Algorithm Comparison](docs/screenshots/05-algorithm-comparison.png)
+
+
 
 ## Algorithms
 
@@ -145,3 +168,8 @@ Therefore, BFS and DFS find routes of the same length in these generated mazes, 
 ## Demo
 
 ![Maze Generator and Solver Demo](docs/demo.gif)
+
+
+
+
+
