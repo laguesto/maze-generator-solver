@@ -3,6 +3,10 @@
 
 A desktop application built with C# and WPF that generates random mazes, visualizes pathfinding algorithms, and compares their performance.
 
+## Demo
+
+![Maze Generator and Solver Demo](docs/demo.gif)
+
 ## Overview
 
 Maze Generator and Solver is a programming practice project focused on maze generation, graph traversal, and pathfinding algorithms.
@@ -165,9 +169,7 @@ Therefore, BFS and DFS find routes of the same length in these generated mazes, 
 
 **Framework:** WPF / .NET 10
 
-## Demo
 
-![Maze Generator and Solver Demo](docs/demo.gif)
 
 
 
