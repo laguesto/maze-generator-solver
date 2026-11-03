@@ -122,7 +122,7 @@ MazeGeneratorSolver/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/maze-generator-solver.git
+git clone https://github.com/laguesto/maze-generator-solver.git
 ```
 
 2. Open `MazeGeneratorSolver.sln` in Visual Studio.
