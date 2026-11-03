@@ -15,6 +15,15 @@ namespace MazeGeneratorSolver
         // Поточний лабіринт
         private Maze? _maze;
 
+        // Об'єкт генератора лабіринту
+        private MazeGenerator? _mazeGenerator;
+
+        // Кроки генерації лабіринту
+        private List<MazeStep> _generationSteps = new List<MazeStep>();
+
+        // Поточний крок генерації
+        private int _generationIndex = 0;
+
         // Клітинки, які вже підсвічені під час пошуку
         private HashSet<Cell> _shownVisited = new HashSet<Cell>();
 
@@ -27,12 +36,13 @@ namespace MazeGeneratorSolver
         // Знайдений маршрут
         private List<Cell> _pathAnimation = new List<Cell>();
 
-        // Індекси поточної анімації
+        // Індекси поточної анімації пошуку
         private int _visitedIndex = 0;
         private int _pathIndex = 0;
 
-        // Таймер анімації
+        // Таймери анімації
         private DispatcherTimer? _animationTimer;
+        private DispatcherTimer? _generationTimer;
 
         public MainWindow()
         {
@@ -46,7 +56,6 @@ namespace MazeGeneratorSolver
             // Підключення регулятора швидкості
             SpeedSlider.ValueChanged += SpeedSlider_ValueChanged;
 
-            // Встановлення початкового значення швидкості
             SpeedValueText.Text = ((int)SpeedSlider.Value).ToString() + "x";
 
             // Оновлення малюнка при зміні розміру поля
@@ -57,6 +66,7 @@ namespace MazeGeneratorSolver
         private void GenerateButton_Click(object sender, RoutedEventArgs e)
         {
             StopAnimation();
+            StopGenerationAnimation();
 
             if (SizeComboBox.SelectedItem is not ComboBoxItem selectedItem)
                 return;
@@ -68,19 +78,105 @@ namespace MazeGeneratorSolver
             // Створюємо лабіринт
             _maze = new Maze(size, size);
 
-            // Запускаємо генерацію
-            MazeGenerator generator = new MazeGenerator();
-            generator.Generate(_maze);
+            // Створюємо генератор
+            _mazeGenerator = new MazeGenerator();
+
+            // Отримуємо послідовність кроків генерації
+            _generationSteps = _mazeGenerator.Generate(_maze);
+
+            // Закриваємо всі стіни для початку анімації
+            _mazeGenerator.CloseAllWalls(_maze);
 
             // Встановлюємо початкову та кінцеву точки
             _maze.Cells[0, 0].IsStart = true;
             _maze.Cells[size - 1, size - 1].IsFinish = true;
 
-            // Очищаємо попередні результати
+            // Очищаємо попередні результати пошуку
             ClearSearchResults();
 
-            // Малюємо новий лабіринт
+            _generationIndex = 0;
+
+            // Малюємо початковий лабіринт із закритими стінами
             DrawMaze();
+
+            // Тимчасово блокуємо кнопки
+            GenerateButton.IsEnabled = false;
+            SolveButton.IsEnabled = false;
+            ResetButton.IsEnabled = false;
+
+            // Запускаємо анімацію генерації
+            StartGenerationAnimation();
+        }
+
+        // Запуск анімації генерації
+        private void StartGenerationAnimation()
+        {
+            if (_generationSteps.Count == 0)
+            {
+                FinishGenerationAnimation();
+                return;
+            }
+
+            _generationTimer = new DispatcherTimer();
+
+            // Інтервал між оновленнями
+            _generationTimer.Interval = TimeSpan.FromMilliseconds(25);
+
+            _generationTimer.Tick += GenerationTimer_Tick;
+            _generationTimer.Start();
+        }
+
+        // Покрокове створення проходів
+        private void GenerationTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_mazeGenerator == null)
+                return;
+
+            // Кількість проходів залежить від швидкості
+            int stepsPerTick = (int)SpeedSlider.Value * 2;
+
+            for (int i = 0; i < stepsPerTick &&
+                 _generationIndex < _generationSteps.Count; i++)
+            {
+                // Відкриваємо наступний прохід
+                _mazeGenerator.ApplyStep(
+                    _generationSteps[_generationIndex]);
+
+                _generationIndex++;
+            }
+
+            // Оновлюємо зображення
+            DrawMaze();
+
+            // Перевіряємо завершення генерації
+            if (_generationIndex >= _generationSteps.Count)
+            {
+                FinishGenerationAnimation();
+            }
+        }
+
+        // Завершення генерації
+        private void FinishGenerationAnimation()
+        {
+            StopGenerationAnimation();
+
+            // Знову дозволяємо натискати кнопки
+            GenerateButton.IsEnabled = true;
+            SolveButton.IsEnabled = true;
+            ResetButton.IsEnabled = true;
+
+            DrawMaze();
+        }
+
+        // Зупинка анімації генерації
+        private void StopGenerationAnimation()
+        {
+            if (_generationTimer != null)
+            {
+                _generationTimer.Stop();
+                _generationTimer.Tick -= GenerationTimer_Tick;
+                _generationTimer = null;
+            }
         }
 
         // Пошук виходу з лабіринту
@@ -156,7 +252,7 @@ namespace MazeGeneratorSolver
             }
         }
 
-        // Запуск анімації
+        // Запуск анімації пошуку
         private void StartAnimation()
         {
             _visitedIndex = 0;
@@ -164,7 +260,6 @@ namespace MazeGeneratorSolver
 
             _animationTimer = new DispatcherTimer();
 
-            // Інтервал між оновленнями анімації
             _animationTimer.Interval = TimeSpan.FromMilliseconds(30);
 
             _animationTimer.Tick += AnimationTimer_Tick;
@@ -174,7 +269,7 @@ namespace MazeGeneratorSolver
         // Послідовне підсвічування клітинок
         private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
-            // Кількість клітинок залежить від вибраної швидкості
+            // Кількість клітинок залежить від швидкості
             int cellsPerTick = (int)SpeedSlider.Value;
 
             // Спочатку показуємо процес пошуку
@@ -209,7 +304,7 @@ namespace MazeGeneratorSolver
             StopAnimation();
         }
 
-        // Оновлення швидкості анімації
+        // Оновлення тексту швидкості
         private void SpeedSlider_ValueChanged(
             object sender,
             RoutedPropertyChangedEventArgs<double> e)
@@ -217,7 +312,7 @@ namespace MazeGeneratorSolver
             SpeedValueText.Text = ((int)SpeedSlider.Value).ToString() + "x";
         }
 
-        // Зупинка анімації
+        // Зупинка анімації пошуку
         private void StopAnimation()
         {
             if (_animationTimer != null)

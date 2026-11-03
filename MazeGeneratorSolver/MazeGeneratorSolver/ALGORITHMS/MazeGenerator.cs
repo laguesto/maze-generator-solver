@@ -1,16 +1,20 @@
-﻿using MazeGeneratorSolver.MODELS;
+﻿
+using MazeGeneratorSolver.MODELS;
 
 namespace MazeGeneratorSolver.ALGORITHMS
 {
     public class MazeGenerator
     {
-        // Генерація випадкового лабіринту
-        public void Generate(Maze maze)
+        // Генерація лабіринту та збереження всіх кроків
+        public List<MazeStep> Generate(Maze maze)
         {
             Random random = new Random();
 
             // Стек для збереження шляху генерації
             Stack<Cell> stack = new Stack<Cell>();
+
+            // Список кроків створення лабіринту
+            List<MazeStep> steps = new List<MazeStep>();
 
             // Початкова клітинка
             Cell start = maze.Cells[0, 0];
@@ -29,17 +33,20 @@ namespace MazeGeneratorSolver.ALGORITHMS
 
                 if (neighbors.Count > 0)
                 {
-                    // Випадково вибираємо сусідню клітинку
+                    // Випадково вибираємо сусіда
                     int index = random.Next(neighbors.Count);
                     Cell next = neighbors[index];
 
                     // Відкриваємо прохід між клітинками
                     RemoveWalls(current, next);
 
+                    // Зберігаємо крок генерації
+                    steps.Add(new MazeStep(current, next));
+
                     // Позначаємо клітинку відвіданою
                     next.IsVisited = true;
 
-                    // Додаємо її до стеку
+                    // Додаємо клітинку до стеку
                     stack.Push(next);
                 }
                 else
@@ -49,11 +56,33 @@ namespace MazeGeneratorSolver.ALGORITHMS
                 }
             }
 
-            // Скидаємо стан відвідування для подальшого пошуку
+            // Скидаємо стан відвідування
             foreach (Cell cell in maze.Cells)
             {
                 cell.IsVisited = false;
             }
+
+            return steps;
+        }
+
+        // Закриття всіх стін перед анімацією
+        public void CloseAllWalls(Maze maze)
+        {
+            foreach (Cell cell in maze.Cells)
+            {
+                cell.TopWall = true;
+                cell.RightWall = true;
+                cell.BottomWall = true;
+                cell.LeftWall = true;
+
+                cell.IsVisited = false;
+            }
+        }
+
+        // Відкриття проходу на одному кроці анімації
+        public void ApplyStep(MazeStep step)
+        {
+            RemoveWalls(step.Current, step.Next);
         }
 
         // Пошук невідвіданих сусідніх клітинок
